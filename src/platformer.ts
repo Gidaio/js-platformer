@@ -11,22 +11,21 @@ interface Input {
 type InputType = "up" | "down"
 type Context = CanvasRenderingContext2D
 
-const WIDTH = 500
-const HEIGHT = 500
 
 const canvas = document.getElementById("game") as HTMLCanvasElement
-const ppmElement = document.getElementById("ppm") as HTMLInputElement
 const accelerationElement = document.getElementById("acceleration") as HTMLInputElement
 const frictionElement = document.getElementById("friction") as HTMLInputElement
 const context = canvas.getContext("2d")
 
 if (context) {
+  const renderer = new Renderer(context)
+
   const player: Player = {
     xPosition: 1,
     xVelocity: 0
   }
 
-  const input = {
+  const input: Input = {
     left: "up",
     right: "up"
   }
@@ -73,31 +72,8 @@ if (context) {
     player.xVelocity += xAcceleration * deltaTime - Number(frictionElement.value) * player.xVelocity * deltaTime
     player.xPosition += player.xVelocity * deltaTime
 
-    clearScreen(context)
-    drawPlayer(context, player)
+    renderer.render(player)
 
     setTimeout(gameLoop, 0, context)
-  }
-
-
-  function clearScreen(context: Context): void {
-    context.fillStyle = "#EEF"
-    context.fillRect(0, 0, WIDTH, HEIGHT)
-  }
-
-  function drawPlayer(context: Context, player: Player): void {
-    context.fillStyle = "#000"
-    drawRectangle(context, player.xPosition, 2, 0.5, 0.5)
-  }
-
-  function drawRectangle(context: Context, xPos: number, yPos: number, width: number, height: number): void {
-    const ppm = Number(ppmElement.value)
-
-    context.fillRect(
-      Math.floor(xPos * ppm),
-      Math.floor(HEIGHT - (yPos - height) * ppm),
-      Math.floor(width * ppm),
-      Math.floor(height * ppm)
-    )
   }
 }
