@@ -1,5 +1,6 @@
 interface Player {
-  x: number
+  xPosition: number
+  xVelocity: number
 }
 
 interface Input {
@@ -14,11 +15,14 @@ const WIDTH = 500
 const HEIGHT = 500
 
 const canvas = document.getElementById("game") as HTMLCanvasElement
+const accelerationElement = document.getElementById("acceleration") as HTMLInputElement
+const frictionElement = document.getElementById("friction") as HTMLInputElement
 const context = canvas.getContext("2d")
 
 if (context) {
   const player: Player = {
-    x: 20
+    xPosition: 20,
+    xVelocity: 0
   }
 
   const input = {
@@ -55,13 +59,18 @@ if (context) {
     const deltaTime = (now - previousTime) / 1000
     previousTime = now
 
+    let xAcceleration = 0
+
     if (input.left === "down") {
-      player.x -= 100 * deltaTime
+      xAcceleration -= Number(accelerationElement.value)
     }
 
     if (input.right === "down") {
-      player.x += 100 * deltaTime
+      xAcceleration += Number(accelerationElement.value)
     }
+
+    player.xVelocity += xAcceleration * deltaTime - Number(frictionElement.value) * player.xVelocity * deltaTime
+    player.xPosition += player.xVelocity * deltaTime
 
     clearScreen(context)
     drawPlayer(context, player)
@@ -77,7 +86,7 @@ if (context) {
 
   function drawPlayer(context: Context, player: Player): void {
     context.fillStyle = "#000"
-    drawRectangle(context, player.x, 30, 25, 25)
+    drawRectangle(context, player.xPosition, 30, 25, 25)
   }
 
   function drawRectangle(context: Context, xPos: number, yPos: number, width: number, height: number): void {
