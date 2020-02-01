@@ -7,6 +7,7 @@ interface Player {
   position: Vector2
   dimension: Vector2
   velocity: Vector2
+  canJump: boolean
 }
 
 interface Wall {
@@ -22,6 +23,7 @@ interface Vector2 {
 interface Input {
   left: InputType
   right: InputType
+  up: InputType
 }
 
 type InputType = "up" | "down"
@@ -32,6 +34,7 @@ const canvas = document.getElementById("game") as HTMLCanvasElement
 const accelerationElement = document.getElementById("acceleration") as HTMLInputElement
 const frictionElement = document.getElementById("friction") as HTMLInputElement
 const gravityElement = document.getElementById("gravity") as HTMLInputElement
+const jumpElement = document.getElementById("jump") as HTMLInputElement
 const context = canvas.getContext("2d")
 
 
@@ -42,7 +45,8 @@ if (context) {
     player: {
       position: { x: 5, y: 8 },
       dimension: { x: 0.5, y: 0.5 },
-      velocity: { x: 0, y: 0 }
+      velocity: { x: 0, y: 0 },
+      canJump: false
     },
     walls: [
       {
@@ -62,7 +66,8 @@ if (context) {
 
   const input: Input = {
     left: "up",
-    right: "up"
+    right: "up",
+    up: "up"
   }
 
   let previousTime = new Date().getTime()
@@ -77,6 +82,10 @@ if (context) {
     if (event.key === "ArrowLeft") {
       input.left = "down"
     }
+
+    if (event.key === "ArrowUp") {
+      input.up = "down"
+    }
   })
 
   document.addEventListener("keyup", event => {
@@ -87,6 +96,10 @@ if (context) {
     if (event.key === "ArrowLeft") {
       input.left = "up"
     }
+
+    if (event.key === "ArrowUp") {
+      input.up = "up"
+    }
   })
 
   function gameLoop(context: Context) {
@@ -95,6 +108,7 @@ if (context) {
     previousTime = now
 
     let xAcceleration = 0
+    const player = gameState.player
 
     if (input.left === "down") {
       xAcceleration -= Number(accelerationElement.value)
@@ -104,7 +118,10 @@ if (context) {
       xAcceleration += Number(accelerationElement.value)
     }
 
-    const player = gameState.player
+    if (input.up === "down" && player.canJump) {
+      player.velocity.y += Number(jumpElement.value)
+      player.canJump = false
+    }
 
     player.velocity.x += xAcceleration * deltaTime - Number(frictionElement.value) * player.velocity.x * deltaTime
     if (Math.abs(player.velocity.x) < 0.0001) {
@@ -172,6 +189,7 @@ if (context) {
           player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
         ) {
           bestTY = topT
+          player.canJump = true
         }
       }
     }
