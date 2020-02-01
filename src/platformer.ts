@@ -7,7 +7,12 @@ interface Player {
   position: Vector2
   dimension: Vector2
   velocity: Vector2
-  canJump: boolean
+  collisionSides: {
+    left: boolean
+    right: boolean
+    up: boolean
+    down: boolean
+  }
 }
 
 interface Wall {
@@ -46,7 +51,12 @@ if (context) {
       position: { x: 5, y: 8 },
       dimension: { x: 0.5, y: 0.5 },
       velocity: { x: 0, y: 0 },
-      canJump: false
+      collisionSides: {
+        left: false,
+        right: false,
+        up: false,
+        down: false
+      }
     },
     walls: [
       {
@@ -118,9 +128,8 @@ if (context) {
       xAcceleration += Number(accelerationElement.value)
     }
 
-    if (input.up === "down" && player.canJump) {
+    if (input.up === "down" && player.collisionSides.down) {
       player.velocity.y += Number(jumpElement.value)
-      player.canJump = false
     }
 
     player.velocity.x += xAcceleration * deltaTime - Number(frictionElement.value) * player.velocity.x * deltaTime
@@ -131,6 +140,13 @@ if (context) {
     player.velocity.y += Number(gravityElement.value) * deltaTime
     if (Math.abs(player.velocity.y) < 0.0001) {
       player.velocity.y = 0
+    }
+
+    player.collisionSides = {
+      left: false,
+      right: false,
+      up: false,
+      down: false
     }
 
     let bestTX = deltaTime
@@ -157,6 +173,8 @@ if (context) {
           player.position.y <= minkowskiWall.position.y + minkowskiWall.dimension.y
         ) {
           bestTX = leftT
+          // Left side of the wall, right side of the player.
+          player.collisionSides.right = true
         }
 
         let rightT = (minkowskiWall.position.x + minkowskiWall.dimension.x - player.position.x) / player.velocity.x
@@ -167,6 +185,7 @@ if (context) {
           player.position.y <= minkowskiWall.position.y + minkowskiWall.dimension.y
         ) {
           bestTX = rightT
+          player.collisionSides.left = true
         }
       }
 
@@ -179,6 +198,7 @@ if (context) {
           player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
         ) {
           bestTY = bottomT
+          player.collisionSides.up = true
         }
 
         let topT = (minkowskiWall.position.y + minkowskiWall.dimension.y - player.position.y) / player.velocity.y
@@ -189,7 +209,7 @@ if (context) {
           player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
         ) {
           bestTY = topT
-          player.canJump = true
+          player.collisionSides.down = true
         }
       }
     }
