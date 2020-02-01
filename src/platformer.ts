@@ -120,45 +120,56 @@ if (context) {
     let bestTY = deltaTime
 
     for (const wall of gameState.walls) {
+      const minkowskiWall: Wall = {
+        position: {
+          x: wall.position.x - player.dimension.x / 2,
+          y: wall.position.y - player.dimension.y
+        },
+        dimension: {
+          x: wall.dimension.x + player.dimension.x,
+          y: wall.dimension.y + player.dimension.y
+        }
+      }
+
       if (player.velocity.x !== 0) {
-        let leftT = (wall.position.x - player.dimension.x / 2 - player.position.x) / player.velocity.x
+        let leftT = (minkowskiWall.position.x - player.position.x) / player.velocity.x
 
         if (
           leftT > 0 && leftT < bestTX &&
-          player.position.y >= wall.position.y &&
-          player.position.y <= wall.position.y + wall.dimension.y
+          player.position.y >= minkowskiWall.position.y &&
+          player.position.y <= minkowskiWall.position.y + minkowskiWall.dimension.y
         ) {
           bestTX = leftT
         }
 
-        let rightT = (wall.position.x + wall.dimension.x + player.dimension.x / 2 - player.position.x) / player.velocity.x
+        let rightT = (minkowskiWall.position.x + minkowskiWall.dimension.x - player.position.x) / player.velocity.x
 
         if (
           rightT > 0 && rightT < bestTX &&
-          player.position.y >= wall.position.y &&
-          player.position.y <= wall.position.y + wall.dimension.y
+          player.position.y >= minkowskiWall.position.y &&
+          player.position.y <= minkowskiWall.position.y + minkowskiWall.dimension.y
         ) {
           bestTX = rightT
         }
       }
 
       if (player.velocity.y !== 0) {
-        let bottomT = (wall.position.y - player.dimension.y - player.position.y) / player.velocity.y
+        let bottomT = (minkowskiWall.position.y - player.position.y) / player.velocity.y
 
         if (
           bottomT > 0 && bottomT < bestTY &&
-          player.position.x >= wall.position.x &&
-          player.position.x <= wall.position.x + wall.dimension.x
+          player.position.x >= minkowskiWall.position.x &&
+          player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
         ) {
           bestTY = bottomT
         }
 
-        let topT = (wall.position.y + wall.dimension.y - player.position.y) / player.velocity.y
+        let topT = (minkowskiWall.position.y + minkowskiWall.dimension.y - player.position.y) / player.velocity.y
 
         if (
           topT > 0 && topT < bestTY &&
-          player.position.x >= wall.position.x &&
-          player.position.x <= wall.position.x + wall.dimension.x
+          player.position.x >= minkowskiWall.position.x &&
+          player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
         ) {
           bestTY = topT
         }
