@@ -10,9 +10,14 @@ class Renderer {
     this.pixelsPerMeterElement = document.getElementById("ppm") as HTMLInputElement
   }
 
-  public render(player: Player) {
+  public render(gameState: GameState) {
     this.clearScreen()
-    this.drawPlayer(player)
+
+    for (const wall of gameState.walls) {
+      this.drawWall(wall)
+    }
+
+    this.drawPlayer(gameState.player)
   }
 
   private clearScreen(): void {
@@ -21,18 +26,26 @@ class Renderer {
   }
 
   private drawPlayer(player: Player): void {
-    this.context.fillStyle = "#000"
-    this.drawRectangle(player.xPosition, 2, 0.5, 0.5)
+    this.context.fillStyle = "#22E"
+    this.drawRectangle({
+      x: player.position.x - player.dimension.x / 2,
+      y: player.position.y
+    }, player.dimension)
   }
 
-  private drawRectangle(xPos: number, yPos: number, width: number, height: number): void {
+  private drawWall(wall: Wall): void {
+    this.context.fillStyle = "#000"
+    this.drawRectangle(wall.position, wall.dimension)
+  }
+
+  private drawRectangle(position: Vector2, dimension: Vector2): void {
     const ppm = Number(this.pixelsPerMeterElement.value)
 
     this.context.fillRect(
-      Math.floor(xPos * ppm),
-      Math.floor(Renderer.CANVAS_HEIGHT - (yPos - height) * ppm),
-      Math.floor(width * ppm),
-      Math.floor(height * ppm)
+      position.x * ppm,
+      Renderer.CANVAS_HEIGHT - (position.y + dimension.y) * ppm,
+      dimension.x * ppm,
+      dimension.y * ppm
     )
   }
 }

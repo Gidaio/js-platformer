@@ -1,6 +1,22 @@
+interface GameState {
+  player: Player
+  walls: Wall[]
+}
+
 interface Player {
-  xPosition: number
-  xVelocity: number
+  position: Vector2
+  dimension: Vector2
+  velocity: Vector2
+}
+
+interface Wall {
+  position: Vector2
+  dimension: Vector2
+}
+
+interface Vector2 {
+  x: number
+  y: number
 }
 
 interface Input {
@@ -17,12 +33,33 @@ const accelerationElement = document.getElementById("acceleration") as HTMLInput
 const frictionElement = document.getElementById("friction") as HTMLInputElement
 const context = canvas.getContext("2d")
 
+
+let previousRightT: number
+
+
 if (context) {
   const renderer = new Renderer(context)
 
-  const player: Player = {
-    xPosition: 1,
-    xVelocity: 0
+  const gameState: GameState = {
+    player: {
+      position: { x: 5, y: 1 },
+      dimension: { x: 0.5, y: 0.5 },
+      velocity: { x: 0, y: 0 }
+    },
+    walls: [
+      // {
+      //   position: { x: 1, y: 0 },
+      //   dimension: { x: 8, y: 1 }
+      // },
+      {
+        position: { x: 0, y: 0 },
+        dimension: { x: 1, y: 3 }
+      },
+      {
+        position: { x: 9, y: 0 },
+        dimension: { x: 1, y: 3 }
+      }
+    ]
   }
 
   const input: Input = {
@@ -69,10 +106,42 @@ if (context) {
       xAcceleration += Number(accelerationElement.value)
     }
 
-    player.xVelocity += xAcceleration * deltaTime - Number(frictionElement.value) * player.xVelocity * deltaTime
-    player.xPosition += player.xVelocity * deltaTime
+    const player = gameState.player
 
-    renderer.render(player)
+    player.velocity.x += xAcceleration * deltaTime - Number(frictionElement.value) * player.velocity.x * deltaTime
+    if (Math.abs(player.velocity.x) < 0.0001) {
+      player.velocity.x = 0
+    }
+
+    let bestT = deltaTime
+
+    if (player.velocity.x !== 0) {
+      for (const wall of gameState.walls) {
+        let leftT = (wall.position.x - player.dimension.x / 2 - player.position.x) / player.velocity.x
+
+        if (
+          leftT > 0 && leftT < bestT &&
+          player.position.y >= wall.position.y &&
+          player.position.y <= wall.position.y + wall.dimension.y
+        ) {
+          bestT = leftT
+        }
+
+        let rightT = (wall.position.x + wall.dimension.x + player.dimension.x / 2 - player.position.x) / player.velocity.x
+
+        if (
+          rightT > 0 && rightT < bestT &&
+          player.position.y >= wall.position.y &&
+          player.position.y <= wall.position.y + wall.dimension.y
+        ) {
+          bestT = rightT
+        }
+      }
+    }
+
+    player.position.x += player.velocity.x * bestT - Math.sign(player.velocity.x) * 0.0001
+
+    renderer.render(gameState)
 
     setTimeout(gameLoop, 0, context)
   }
