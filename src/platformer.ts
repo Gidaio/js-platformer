@@ -48,7 +48,7 @@ if (context) {
 
   const gameState: GameState = {
     player: {
-      position: { x: 5, y: 8 },
+      position: { x: 5, y: 1 },
       dimension: { x: 0.5, y: 0.5 },
       velocity: { x: 0, y: 0 },
       collisionSides: {
@@ -60,16 +60,28 @@ if (context) {
     },
     walls: [
       {
-        position: { x: 1, y: 0 },
-        dimension: { x: 8, y: 1 }
+        position: { x: 0, y: 0 },
+        dimension: { x: 10, y: 0.25 }
       },
       {
         position: { x: 0, y: 0 },
-        dimension: { x: 1, y: 3 }
+        dimension: { x: 0.25, y: 10 }
       },
       {
-        position: { x: 9, y: 0 },
-        dimension: { x: 1, y: 3 }
+        position: { x: 9.75, y: 0 },
+        dimension: { x: 0.25, y: 10 }
+      },
+      {
+        position: { x: 1 , y: 2 },
+        dimension: { x: 4, y: 0.4 }
+      },
+      {
+        position: { x: 6, y: 3.5 },
+        dimension: { x: 0.4, y: 0.2 }
+      },
+      {
+        position: { x: 4.8, y: 7 },
+        dimension: { x: 0.4, y: 3 }
       }
     ]
   }
@@ -93,7 +105,7 @@ if (context) {
       input.left = "down"
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.key === "ArrowUp" || event.key === " ") {
       input.up = "down"
     }
   })
@@ -107,7 +119,7 @@ if (context) {
       input.left = "up"
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.key === "ArrowUp" || event.key === " ") {
       input.up = "up"
     }
   })
