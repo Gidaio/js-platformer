@@ -2,8 +2,29 @@
 <html>
 <head>
   <title>Platformer</title>
+
+  <style>
+    canvas {
+      margin: 7px;
+    }
+
+    input {
+      margin: 3px;
+    }
+
+    button {
+      margin: 3px;
+    }
+  </style>
 <body>
   <canvas id="game" width="500" height="500"></canvas>
+  <br />
+  <button id="back">&leftarrow;</button>
+  <button id="pause-play">Pause</button>
+  <button id="forward">&rightarrow;</button>
+  <br />
+  <label for="step-size">Step Size</label>
+  <input id="step-size" name="step-size" value="1" />
   <br />
   <label for="ppm">Pixels Per Meter</label>
   <input id="ppm" name="ppm" value="50" />

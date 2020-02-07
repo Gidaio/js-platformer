@@ -37,6 +37,10 @@ type Context = CanvasRenderingContext2D
 
 
 const canvas = document.getElementById("game") as HTMLCanvasElement
+const backButton = document.getElementById("back") as HTMLButtonElement
+const pausePlayButton = document.getElementById("pause-play") as HTMLButtonElement
+const forwardButton = document.getElementById("forward") as HTMLButtonElement
+const stepSizeElement = document.getElementById("step-size") as HTMLInputElement
 const accelerationElement = document.getElementById("acceleration") as HTMLInputElement
 const frictionElement = document.getElementById("friction") as HTMLInputElement
 const gravityElement = document.getElementById("gravity") as HTMLInputElement
@@ -45,6 +49,10 @@ const context = canvas.getContext("2d")
 
 
 if (context) {
+  let isPaused = false
+  let gameStateIndex = 0
+  let previousGameStates: GameState[] = []
+
   const renderer = new Renderer(context)
 
   const gameState: GameState = {
@@ -94,6 +102,31 @@ if (context) {
 
   let previousTime = new Date().getTime()
 
+  pausePlayButton.addEventListener("click", () => {
+    if (!isPaused) {
+      gameStateIndex = 0
+      isPaused = true
+      pausePlayButton.innerText = "Play"
+    } else {
+      isPaused = false
+      pausePlayButton.innerText = "Pause"
+      previousTime = new Date().getTime()
+      setTimeout(gameLoop, 0, context)
+    }
+  })
+
+  backButton.addEventListener("click", () => {
+    if (!isPaused) { return }
+    gameStateIndex = Math.min(199, gameStateIndex + Number(stepSizeElement.value))
+    renderer.render(previousGameStates[gameStateIndex])
+  })
+
+  forwardButton.addEventListener("click", () => {
+    if (!isPaused) { return }
+    gameStateIndex = Math.max(0, gameStateIndex - Number(stepSizeElement.value))
+    renderer.render(previousGameStates[gameStateIndex])
+  })
+
   setTimeout(gameLoop, 0, context)
 
   document.addEventListener("keydown", event => {
@@ -125,6 +158,10 @@ if (context) {
   })
 
   function gameLoop(context: Context) {
+    if (isPaused) {
+      return
+    }
+
     const now = new Date().getTime()
     const deltaTime = (now - previousTime) / 1000
     previousTime = now
@@ -237,6 +274,8 @@ if (context) {
     }
 
     renderer.render(gameState)
+
+    previousGameStates = [JSON.parse(JSON.stringify(gameState)), ...previousGameStates].slice(0, 200)
 
     setTimeout(gameLoop, 0, context)
   }
