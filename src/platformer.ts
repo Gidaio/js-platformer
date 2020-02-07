@@ -1,4 +1,5 @@
 interface GameState {
+  input: Input
   player: Player
   walls: Wall[]
 }
@@ -47,6 +48,11 @@ if (context) {
   const renderer = new Renderer(context)
 
   const gameState: GameState = {
+    input: {
+      left: "up",
+      right: "up",
+      up: "up"
+    },
     player: {
       position: { x: 5, y: 1 },
       dimension: { x: 0.5, y: 0.5 },
@@ -86,41 +92,35 @@ if (context) {
     ]
   }
 
-  const input: Input = {
-    left: "up",
-    right: "up",
-    up: "up"
-  }
-
   let previousTime = new Date().getTime()
 
   setTimeout(gameLoop, 0, context)
 
   document.addEventListener("keydown", event => {
     if (event.key === "ArrowRight") {
-      input.right = "down"
+      gameState.input.right = "down"
     }
 
     if (event.key === "ArrowLeft") {
-      input.left = "down"
+      gameState.input.left = "down"
     }
 
     if (event.key === "ArrowUp" || event.key === " ") {
-      input.up = "down"
+      gameState.input.up = "down"
     }
   })
 
   document.addEventListener("keyup", event => {
     if (event.key === "ArrowRight") {
-      input.right = "up"
+      gameState.input.right = "up"
     }
 
     if (event.key === "ArrowLeft") {
-      input.left = "up"
+      gameState.input.left = "up"
     }
 
     if (event.key === "ArrowUp" || event.key === " ") {
-      input.up = "up"
+      gameState.input.up = "up"
     }
   })
 
@@ -132,15 +132,15 @@ if (context) {
     let xAcceleration = 0
     const player = gameState.player
 
-    if (input.left === "down") {
+    if (gameState.input.left === "down") {
       xAcceleration -= Number(accelerationElement.value)
     }
 
-    if (input.right === "down") {
+    if (gameState.input.right === "down") {
       xAcceleration += Number(accelerationElement.value)
     }
 
-    if (input.up === "down" && player.collisionSides.down) {
+    if (gameState.input.up === "down" && player.collisionSides.down) {
       player.velocity.y += Number(jumpElement.value)
     }
 
