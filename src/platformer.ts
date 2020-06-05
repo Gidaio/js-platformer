@@ -1,39 +1,31 @@
-interface GameState {
+import Player from "./player.js"
+import Renderer from "./renderer.js"
+
+
+export interface GameState {
   input: Input
   player: Player
   walls: Wall[]
 }
 
-interface Player {
-  position: Vector2
-  dimension: Vector2
-  velocity: Vector2
-  collisionSides: {
-    left: boolean
-    right: boolean
-    up: boolean
-    down: boolean
-  }
-}
-
-interface Wall {
+export interface Wall {
   position: Vector2
   dimension: Vector2
 }
 
-interface Vector2 {
+export interface Vector2 {
   x: number
   y: number
 }
 
-interface Input {
+export interface Input {
   left: InputType
   right: InputType
   up: InputType
 }
 
 type InputType = "up" | "down"
-type Context = CanvasRenderingContext2D
+export type Context = CanvasRenderingContext2D
 
 
 const canvas = document.getElementById("game") as HTMLCanvasElement
@@ -41,12 +33,9 @@ const backButton = document.getElementById("back") as HTMLButtonElement
 const pausePlayButton = document.getElementById("pause-play") as HTMLButtonElement
 const forwardButton = document.getElementById("forward") as HTMLButtonElement
 const stepSizeElement = document.getElementById("step-size") as HTMLInputElement
-const accelerationElement = document.getElementById("acceleration") as HTMLInputElement
-const frictionElement = document.getElementById("friction") as HTMLInputElement
-const gravityElement = document.getElementById("gravity") as HTMLInputElement
-const jumpElement = document.getElementById("jump") as HTMLInputElement
-const context = canvas.getContext("2d")
 
+
+const context = canvas.getContext("2d")
 
 if (context) {
   let isPaused = false
@@ -61,17 +50,7 @@ if (context) {
       right: "up",
       up: "up"
     },
-    player: {
-      position: { x: 5, y: 1 },
-      dimension: { x: 0.5, y: 0.5 },
-      velocity: { x: 0, y: 0 },
-      collisionSides: {
-        left: false,
-        right: false,
-        up: false,
-        down: false
-      }
-    },
+    player: new Player(),
     walls: [
       {
         position: { x: 0, y: 0 },
@@ -100,7 +79,7 @@ if (context) {
     ]
   }
 
-  let previousTime = new Date().getTime()
+  let previousTime: DOMHighResTimeStamp
 
   pausePlayButton.addEventListener("click", () => {
     if (!isPaused) {
@@ -127,7 +106,7 @@ if (context) {
     renderer.render(previousGameStates[gameStateIndex])
   })
 
-  setTimeout(gameLoop, 0, context)
+  requestAnimationFrame((timestamp) => gameLoop(timestamp, context))
 
   document.addEventListener("keydown", event => {
     if (event.key === "ArrowRight") {
@@ -157,126 +136,27 @@ if (context) {
     }
   })
 
-  function gameLoop(context: Context) {
+  function gameLoop(timestamp: DOMHighResTimeStamp, context: Context) {
     if (isPaused) {
       return
     }
 
-    const now = new Date().getTime()
-    const deltaTime = (now - previousTime) / 1000
-    previousTime = now
+    if (!previousTime) {
+      previousTime = timestamp
+      requestAnimationFrame((timestamp) => gameLoop(timestamp, context))
 
-    let xAcceleration = 0
-    const player = gameState.player
-
-    if (gameState.input.left === "down") {
-      xAcceleration -= Number(accelerationElement.value)
+      return
     }
 
-    if (gameState.input.right === "down") {
-      xAcceleration += Number(accelerationElement.value)
-    }
+    const deltaTime = (timestamp - previousTime) / 1000
+    previousTime = timestamp
 
-    if (gameState.input.up === "down" && player.collisionSides.down) {
-      player.velocity.y += Number(jumpElement.value)
-    }
-
-    player.velocity.x += xAcceleration * deltaTime - Number(frictionElement.value) * player.velocity.x * deltaTime
-    if (Math.abs(player.velocity.x) < 0.0001) {
-      player.velocity.x = 0
-    }
-
-    player.velocity.y += Number(gravityElement.value) * deltaTime
-    if (Math.abs(player.velocity.y) < 0.0001) {
-      player.velocity.y = 0
-    }
-
-    player.collisionSides = {
-      left: false,
-      right: false,
-      up: false,
-      down: false
-    }
-
-    let bestTX = deltaTime
-    let bestTY = deltaTime
-
-    for (const wall of gameState.walls) {
-      const minkowskiWall: Wall = {
-        position: {
-          x: wall.position.x - player.dimension.x / 2,
-          y: wall.position.y - player.dimension.y
-        },
-        dimension: {
-          x: wall.dimension.x + player.dimension.x,
-          y: wall.dimension.y + player.dimension.y
-        }
-      }
-
-      if (player.velocity.x !== 0) {
-        let leftT = (minkowskiWall.position.x - player.position.x) / player.velocity.x
-
-        if (
-          leftT > 0 && leftT < bestTX &&
-          player.position.y >= minkowskiWall.position.y &&
-          player.position.y <= minkowskiWall.position.y + minkowskiWall.dimension.y
-        ) {
-          bestTX = leftT
-          // Left side of the wall, right side of the player.
-          player.collisionSides.right = true
-        }
-
-        let rightT = (minkowskiWall.position.x + minkowskiWall.dimension.x - player.position.x) / player.velocity.x
-
-        if (
-          rightT > 0 && rightT < bestTX &&
-          player.position.y >= minkowskiWall.position.y &&
-          player.position.y <= minkowskiWall.position.y + minkowskiWall.dimension.y
-        ) {
-          bestTX = rightT
-          player.collisionSides.left = true
-        }
-      }
-
-      if (player.velocity.y !== 0) {
-        let bottomT = (minkowskiWall.position.y - player.position.y) / player.velocity.y
-
-        if (
-          bottomT > 0 && bottomT < bestTY &&
-          player.position.x >= minkowskiWall.position.x &&
-          player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
-        ) {
-          bestTY = bottomT
-          player.collisionSides.up = true
-        }
-
-        let topT = (minkowskiWall.position.y + minkowskiWall.dimension.y - player.position.y) / player.velocity.y
-
-        if (
-          topT > 0 && topT < bestTY &&
-          player.position.x >= minkowskiWall.position.x &&
-          player.position.x <= minkowskiWall.position.x + minkowskiWall.dimension.x
-        ) {
-          bestTY = topT
-          player.collisionSides.down = true
-        }
-      }
-    }
-
-    player.position.x += player.velocity.x * bestTX - Math.sign(player.velocity.x) * 0.0001
-    if (bestTX < deltaTime) {
-      player.velocity.x = 0
-    }
-
-    player.position.y += player.velocity.y * bestTY - Math.sign(player.velocity.y) * 0.0001
-    if (bestTY < deltaTime) {
-      player.velocity.y = 0
-    }
+    gameState.player.update(deltaTime, gameState.walls, gameState.input)
 
     renderer.render(gameState)
 
     previousGameStates = [JSON.parse(JSON.stringify(gameState)), ...previousGameStates].slice(0, 200)
 
-    setTimeout(gameLoop, 0, context)
+    requestAnimationFrame((timestamp) => gameLoop(timestamp, context))
   }
 }

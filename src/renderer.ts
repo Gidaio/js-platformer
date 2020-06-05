@@ -1,4 +1,8 @@
-class Renderer {
+import { Context, GameState, Vector2, Wall } from "./platformer.js"
+import Player from "./player.js"
+
+
+export default class Renderer {
   private static readonly CANVAS_WIDTH = 500
   private static readonly CANVAS_HEIGHT = 500
 
