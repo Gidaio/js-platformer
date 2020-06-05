@@ -13,6 +13,33 @@ const accelerationElement = document.getElementById("acceleration") as HTMLInput
 const frictionElement = document.getElementById("friction") as HTMLInputElement
 const gravityElement = document.getElementById("gravity") as HTMLInputElement
 const jumpElement = document.getElementById("jump") as HTMLInputElement
+const fallMultiplierElement = document.getElementById("fall-multiplier") as HTMLInputElement
+
+let acceleration = accelerationElement.valueAsNumber
+let friction = frictionElement.valueAsNumber
+let gravity = gravityElement.valueAsNumber
+let jumpVelocity = jumpElement.valueAsNumber
+let fallMultiplier = fallMultiplierElement.valueAsNumber
+
+accelerationElement.addEventListener("input", function () {
+  acceleration = this.valueAsNumber
+})
+
+frictionElement.addEventListener("input", function () {
+  friction = this.valueAsNumber
+})
+
+gravityElement.addEventListener("input", function () {
+  gravity = this.valueAsNumber
+})
+
+jumpElement.addEventListener("input", function () {
+  jumpVelocity = this.valueAsNumber
+})
+
+fallMultiplierElement.addEventListener("input", function () {
+  fallMultiplier = this.valueAsNumber
+})
 
 
 export default class Player {
@@ -35,23 +62,25 @@ export default class Player {
     let xAcceleration = 0
 
     if (input.left === "down") {
-      xAcceleration -= Number(accelerationElement.value)
+      xAcceleration -= acceleration
     }
 
     if (input.right === "down") {
-      xAcceleration += Number(accelerationElement.value)
+      xAcceleration += acceleration
     }
 
     if (input.up === "down" && this.collisionSides.down) {
-      this.velocity.y += Number(jumpElement.value)
+      this.velocity.y += jumpVelocity
     }
 
-    this.velocity.x += xAcceleration * deltaTime - Number(frictionElement.value) * this.velocity.x * deltaTime
+    this.velocity.x += xAcceleration * deltaTime - friction * this.velocity.x * deltaTime
     if (Math.abs(this.velocity.x) < 0.0001) {
       this.velocity.x = 0
     }
 
-    this.velocity.y += Number(gravityElement.value) * deltaTime
+    const downwardAcceleration = this.velocity.y > 0 && input.up === "up" ? gravity * fallMultiplier : gravity
+
+    this.velocity.y += downwardAcceleration * deltaTime
     if (Math.abs(this.velocity.y) < 0.0001) {
       this.velocity.y = 0
     }

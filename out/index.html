@@ -24,20 +24,22 @@
   <button id="forward">&rightarrow;</button>
   <br />
   <label for="step-size">Step Size</label>
-  <input id="step-size" name="step-size" value="1" />
+  <input id="step-size" name="step-size" type="number" value="1" />
   <br />
   <label for="ppm">Pixels Per Meter</label>
-  <input id="ppm" name="ppm" value="50" />
+  <input id="ppm" name="ppm" type="number" value="50" />
   <br />
   <label for="acceleration">Acceleration (m/s^2)</label>
-  <input id="acceleration" name="acceleration" value="60" />
+  <input id="acceleration" name="acceleration" type="number" value="60" />
   <label for="friction">Friction</label>
-  <input id="friction" value="10" />
+  <input id="friction" name="friction" type="number" value="10" />
   <br />
   <label for="gravity">Gravity (m/s^2)</label>
-  <input id="gravity" name="gravity" value="-30" />
-  <lable for="jump">Jump Oompf</lable>
-  <input id="jump" name="name" value="12" />
+  <input id="gravity" name="gravity" type="number" value="-30" />
+  <lable for="jump">Jump Velocity</lable>
+  <input id="jump" name="name" type="number" value="12" />
+  <lable for="fall-multiplier">Fall Multiplier</lable>
+  <input id="fall-multiplier" name="fall-multiplier" type="number" value="2" />
 
   <script type="module" src="platformer.js" ></script>
 </body>
