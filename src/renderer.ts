@@ -8,10 +8,17 @@ export default class Renderer {
 
   private context: Context
   private pixelsPerMeterElement: HTMLInputElement
+  private ppm: number
 
   public constructor(context: Context) {
     this.context = context
     this.pixelsPerMeterElement = document.getElementById("ppm") as HTMLInputElement
+
+    this.pixelsPerMeterElement.addEventListener("input", () => {
+      this.ppm = this.pixelsPerMeterElement.valueAsNumber
+    })
+
+    this.ppm = this.pixelsPerMeterElement.valueAsNumber
   }
 
   public render(gameState: GameState) {
@@ -43,13 +50,11 @@ export default class Renderer {
   }
 
   private drawRectangle(position: Vector2, dimension: Vector2): void {
-    const ppm = Number(this.pixelsPerMeterElement.value)
-
     this.context.fillRect(
-      position.x * ppm,
-      Renderer.CANVAS_HEIGHT - (position.y + dimension.y) * ppm,
-      dimension.x * ppm,
-      dimension.y * ppm
+      position.x * this.ppm,
+      Renderer.CANVAS_HEIGHT - (position.y + dimension.y) * this.ppm,
+      dimension.x * this.ppm,
+      dimension.y * this.ppm
     )
   }
 }
