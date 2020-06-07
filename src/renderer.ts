@@ -38,14 +38,23 @@ export default class Renderer {
 
   private drawPlayer(player: Player): void {
     this.context.fillStyle = "#22E"
-    const leftX = player.position.x - player.dimension.x / 2
-    const rightX = player.position.x + player.dimension.x / 2
+    const yScale = (player.velocity.y / 40) + 1
+    const xScale = 1 / yScale
+
+    const dimensionX = player.dimension.x * xScale
+    const dimensionY = player.dimension.y * yScale
+
+    const xShift = player.velocity.x / 50
+
+    const leftX = player.position.x - dimensionX / 2
+    const rightX = player.position.x + dimensionX / 2
     const bottomY = player.position.y
-    const topY = player.position.y + player.dimension.y
+    const topY = player.position.y + dimensionY
+
     this.drawPath([
       { x: leftX, y: bottomY },
-      { x: leftX, y: topY },
-      { x: rightX, y: topY },
+      { x: leftX - xShift, y: topY },
+      { x: rightX - xShift, y: topY },
       { x: rightX, y: bottomY }
     ])
   }

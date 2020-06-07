@@ -50,7 +50,12 @@ export default class Player {
   }
 
   public readonly dimension: Vector2 = { x: 0.5, y: 0.5 }
-  private velocity: Vector2 = { x: 0, y: 0 }
+  private _velocity: Vector2 = { x: 0, y: 0 }
+
+  public get velocity(): Vector2 {
+    return { x: this._velocity.x, y: this._velocity.y }
+  }
+
   collisionSides: CollisionSides = {
     left: false,
     right: false,
@@ -70,19 +75,19 @@ export default class Player {
     }
 
     if (input.up === "down" && this.collisionSides.down) {
-      this.velocity.y += jumpVelocity
+      this._velocity.y += jumpVelocity
     }
 
-    this.velocity.x += xAcceleration * deltaTime - friction * this.velocity.x * deltaTime
-    if (Math.abs(this.velocity.x) < 0.0001) {
-      this.velocity.x = 0
+    this._velocity.x += xAcceleration * deltaTime - friction * this._velocity.x * deltaTime
+    if (Math.abs(this._velocity.x) < 0.0001) {
+      this._velocity.x = 0
     }
 
-    const downwardAcceleration = this.velocity.y > 0 && input.up === "up" ? gravity * fallMultiplier : gravity
+    const downwardAcceleration = this._velocity.y > 0 && input.up === "up" ? gravity * fallMultiplier : gravity
 
-    this.velocity.y += downwardAcceleration * deltaTime
-    if (Math.abs(this.velocity.y) < 0.0001) {
-      this.velocity.y = 0
+    this._velocity.y += downwardAcceleration * deltaTime
+    if (Math.abs(this._velocity.y) < 0.0001) {
+      this._velocity.y = 0
     }
 
     this.collisionSides = {
@@ -107,8 +112,8 @@ export default class Player {
         }
       }
 
-      if (this.velocity.x !== 0) {
-        let leftT = (minkowskiWall.position.x - this._position.x) / this.velocity.x
+      if (this._velocity.x !== 0) {
+        let leftT = (minkowskiWall.position.x - this._position.x) / this._velocity.x
 
         if (
           leftT > 0 && leftT < bestTX &&
@@ -120,7 +125,7 @@ export default class Player {
           this.collisionSides.right = true
         }
 
-        let rightT = (minkowskiWall.position.x + minkowskiWall.dimension.x - this._position.x) / this.velocity.x
+        let rightT = (minkowskiWall.position.x + minkowskiWall.dimension.x - this._position.x) / this._velocity.x
 
         if (
           rightT > 0 && rightT < bestTX &&
@@ -132,8 +137,8 @@ export default class Player {
         }
       }
 
-      if (this.velocity.y !== 0) {
-        let bottomT = (minkowskiWall.position.y - this._position.y) / this.velocity.y
+      if (this._velocity.y !== 0) {
+        let bottomT = (minkowskiWall.position.y - this._position.y) / this._velocity.y
 
         if (
           bottomT > 0 && bottomT < bestTY &&
@@ -144,7 +149,7 @@ export default class Player {
           this.collisionSides.up = true
         }
 
-        let topT = (minkowskiWall.position.y + minkowskiWall.dimension.y - this._position.y) / this.velocity.y
+        let topT = (minkowskiWall.position.y + minkowskiWall.dimension.y - this._position.y) / this._velocity.y
 
         if (
           topT > 0 && topT < bestTY &&
@@ -157,14 +162,14 @@ export default class Player {
       }
     }
 
-    this._position.x += this.velocity.x * bestTX - Math.sign(this.velocity.x) * 0.0001
+    this._position.x += this._velocity.x * bestTX - Math.sign(this._velocity.x) * 0.0001
     if (bestTX < deltaTime) {
-      this.velocity.x = 0
+      this._velocity.x = 0
     }
 
-    this._position.y += this.velocity.y * bestTY - Math.sign(this.velocity.y) * 0.0001
+    this._position.y += this._velocity.y * bestTY - Math.sign(this._velocity.y) * 0.0001
     if (bestTY < deltaTime) {
-      this.velocity.y = 0
+      this._velocity.y = 0
     }
   }
 }
