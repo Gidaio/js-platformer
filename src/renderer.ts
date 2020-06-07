@@ -38,10 +38,16 @@ export default class Renderer {
 
   private drawPlayer(player: Player): void {
     this.context.fillStyle = "#22E"
-    this.drawRectangle({
-      x: player.position.x - player.dimension.x / 2,
-      y: player.position.y
-    }, player.dimension)
+    const leftX = player.position.x - player.dimension.x / 2
+    const rightX = player.position.x + player.dimension.x / 2
+    const bottomY = player.position.y
+    const topY = player.position.y + player.dimension.y
+    this.drawPath([
+      { x: leftX, y: bottomY },
+      { x: leftX, y: topY },
+      { x: rightX, y: topY },
+      { x: rightX, y: bottomY }
+    ])
   }
 
   private drawWall(wall: Wall): void {
@@ -56,5 +62,17 @@ export default class Renderer {
       dimension.x * this.ppm,
       dimension.y * this.ppm
     )
+  }
+
+  private drawPath(points: Vector2[]): void {
+    const canvasPoints: Vector2[] = points.map(point => ({
+      x: point.x * this.ppm,
+      y: Renderer.CANVAS_HEIGHT - point.y * this.ppm
+    }))
+    this.context.beginPath()
+    for (let i = 0; i < canvasPoints.length; i++) {
+      this.context.lineTo(canvasPoints[i].x, canvasPoints[i].y)
+    }
+    this.context.fill()
   }
 }
