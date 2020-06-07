@@ -38,8 +38,8 @@ export default class Renderer {
 
   private drawPlayer(player: Player): void {
     this.context.fillStyle = "#22E"
-    const yScale = (player.velocity.y / 40) + 1
-    const xScale = 1 / yScale
+    const xScale = (player.velocity.y / 40) + 1
+    const yScale = 1 / xScale
 
     const dimensionX = player.dimension.x * xScale
     const dimensionY = player.dimension.y * yScale
